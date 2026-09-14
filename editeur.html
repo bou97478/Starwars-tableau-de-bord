@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éditeur — Réseau Minos</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="brand">RÉSEAU MINOS // ARCHIVES</a>
+  <div class="breadcrumb"><a href="index.html">racine</a><span class="sep">/</span><span class="here">Éditeur</span></div>
+</div>
+
+<div class="quicknav">
+  <a href="index.html">🏠 Racine</a>
+  <a href="zones/amas-de-minos.html">🗺️ Amas de Minos</a>
+  <a href="zones/rebellion-de-minos.html">🎖️ Rébellion de Minos</a>
+  <a href="cellules/unite.html?id=adversaires">⚔️ Adversaires</a>
+  <a href="cellules/unite.html?id=vaisseaux">🚀 Vaisseaux & véhicules</a>
+  <span class="qn-sep"></span>
+  <a href="editeur.html" class="active">✎ Éditeur</a>
+  <a href="outils/tableau-de-bord.html">📋 Tableau de bord</a>
+  <a href="outils/combats.html">🗡 Combats</a>
+  <a href="outils/equipement.html">📦 Équipement</a>
+  <a href="outils/ma-fiche.html">🧑 Ma fiche</a>
+</div>
+
+<div class="wrap">
+
+  <div class="dossier-head">
+    <div class="eyebrow">Accès rédacteur</div>
+    <h1>Éditeur du dossier</h1>
+    <p class="lead">Ajoutez ou modifiez des personnages, des lieux et des unités. Les changements sont
+    enregistrés automatiquement dans ce navigateur. Pensez à <strong>exporter</strong> régulièrement
+    votre fichier de sauvegarde (onglet « Sauvegarde ») pour ne rien perdre et le transférer ailleurs.</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="personnages">Personnages</button>
+    <button class="tab-btn" data-tab="lieux">Lieux</button>
+    <button class="tab-btn" data-tab="unites">Unités</button>
+    <button class="tab-btn" data-tab="zonesorgs">Zones &amp; organisations</button>
+    <button class="tab-btn" data-tab="sauvegarde">Sauvegarde</button>
+  </div>
+
+  <!-- ============ PERSONNAGES ============ -->
+  <div class="tab-panel active" id="tab-personnages">
+    <div class="toolbar">
+      <button class="btn primary" onclick="openPersonnageForm()">+ Nouveau personnage</button>
+    </div>
+
+    <div class="toolbar" style="flex-wrap:wrap; gap:10px;">
+      <input type="text" id="pl-search" placeholder="Rechercher un nom…" style="flex:2; min-width:200px;" oninput="renderPersonnagesList()">
+      <select id="pl-sort" style="flex:1; min-width:160px;" onchange="renderPersonnagesList()">
+        <option value="creation">Ordre de création</option>
+        <option value="alpha">Ordre alphabétique</option>
+      </select>
+      <select id="pl-filter-unite" style="flex:1; min-width:160px;" onchange="renderPersonnagesList()">
+        <option value="">Tous les groupes</option>
+      </select>
+      <select id="pl-filter-race" style="flex:1; min-width:160px;" onchange="renderPersonnagesList()">
+        <option value="">Toutes les races</option>
+      </select>
+      <select id="pl-filter-type" style="flex:1; min-width:160px;" onchange="renderPersonnagesList()">
+        <option value="">Tous les types</option>
+        <option value="pj">Standard (PJ/PNJ)</option>
+        <option value="sbires">Groupe de sbires</option>
+        <option value="vaisseau">Vaisseau / Véhicule</option>
+      </select>
+    </div>
+
+    <div class="admin-list" id="list-personnages"></div>
+
+    <div class="form-box" id="form-personnage">
+      <h3 id="pf-title">Nouveau personnage</h3>
+      <input type="hidden" id="pf-id">
+
+      <div class="field-row">
+        <div class="field"><label>Nom</label><input type="text" id="pf-nom"></div>
+        <div class="field"><label>Unité / cellule</label><select id="pf-unite"></select></div>
+        <div class="field"><label>Lieu (optionnel)</label><select id="pf-lieu"><option value="">— aucun —</option></select></div>
+      </div>
+
+      <div class="field">
+        <label>Type de personnage</label>
+        <select id="pf-type" onchange="togglePersonnageType()">
+          <option value="pj">Standard (PJ / PNJ nommé)</option>
+          <option value="sbires">Groupe de sbires</option>
+          <option value="vaisseau">Vaisseau / Véhicule (speeder, marcheur...)</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>Race</label><input type="text" id="pf-race"></div>
+        <div class="field"><label>Sexe</label><input type="text" id="pf-sexe"></div>
+        <div class="field"><label>Âge</label><input type="text" id="pf-age"></div>
+        <div class="field"><label>Taille</label><input type="text" id="pf-taille"></div>
+      </div>
+
+      <div class="field"><label>Motivation</label><input type="text" id="pf-motivation"></div>
+      <div class="field"><label>Historique</label><textarea id="pf-historique" placeholder="Un paragraphe par ligne vide entre deux paragraphes."></textarea></div>
+
+      <div class="field-row">
+        <div class="field"><label>Obligation / Devoir</label><input type="text" id="pf-obligation"></div>
+        <div class="field"><label>Carrière</label><input type="text" id="pf-carriere"></div>
+        <div class="field"><label>Spécialisation</label><input type="text" id="pf-specialisation"></div>
+      </div>
+
+      <div class="field"><label>Portrait</label>
+        <div class="file-drop" onclick="document.getElementById('pf-portrait-file').click()">Cliquer pour choisir une image</div>
+        <input type="file" id="pf-portrait-file" accept="image/*" style="display:none">
+        <img id="pf-portrait-preview" class="file-preview">
+        <input type="hidden" id="pf-portrait-data">
+      </div>
+
+      <div id="pf-block-carac">
+        <div class="section-title"><h2>Caractéristiques</h2><div class="rule"></div></div>
+        <p class="section-note">Laissez tout à vide si les caractéristiques ne sont pas encore connues.</p>
+        <div class="carac-grid">
+          <div class="field"><label>Vigueur</label><input type="number" id="pf-vig" min="0" max="6"></div>
+          <div class="field"><label>Agilité</label><input type="number" id="pf-agi" min="0" max="6"></div>
+          <div class="field"><label>Intelligence</label><input type="number" id="pf-int" min="0" max="6"></div>
+          <div class="field"><label>Ruse</label><input type="number" id="pf-rus" min="0" max="6"></div>
+          <div class="field"><label>Volonté</label><input type="number" id="pf-vol" min="0" max="6"></div>
+          <div class="field"><label>Présence</label><input type="number" id="pf-pre" min="0" max="6"></div>
+        </div>
+      </div>
+
+      <div id="pf-block-sbires" style="display:none;">
+        <div class="section-title"><h2>Groupe de sbires</h2><div class="rule"></div></div>
+        <p class="section-note">Le rang de chaque compétence tient lieu de caractéristique+compétence combinées (règle des groupes de sbires FFG).</p>
+        <div class="field-row">
+          <div class="field"><label>Points de blessure par sbire</label><input type="number" id="pf-pv-individuel" min="1" value="5"></div>
+          <div class="field"><label>Nombre de sbires (groupe complet)</label><input type="number" id="pf-nombre-sbires" min="1" value="3"></div>
+        </div>
+      </div>
+
+      <div class="section-title"><h2>Compétences entraînées</h2><div class="rule"></div></div>
+      <p class="section-note" id="pf-competences-sbires-note" style="display:none;">Groupe de sbires : le rang saisi ci-dessous est ignoré. Il est automatiquement remplacé par (nombre de sbires actuel − 1), combiné à la caractéristique correspondante.</p>
+      <div class="dyn-list" id="pf-competences"></div>
+      <button class="btn small" onclick="addCompetenceRow()">+ Ajouter une compétence</button>
+
+      <div class="section-title"><h2>Capacités spéciales</h2><div class="rule"></div></div>
+      <div class="dyn-list" id="pf-capacites"></div>
+      <button class="btn small" onclick="addCapaciteRow()">+ Ajouter une capacité</button>
+
+      <div class="section-title"><h2>Armes / attaques</h2><div class="rule"></div></div>
+      <div class="dyn-list" id="pf-armes"></div>
+      <button class="btn small" onclick="addArmeRow()">+ Ajouter une arme</button>
+
+      <div id="pf-block-vaisseau" style="display:none;">
+        <div class="section-title"><h2>Caractéristiques de vaisseau</h2><div class="rule"></div></div>
+        <div class="field-row">
+          <div class="field"><label>Gabarit</label><input type="number" id="pf-gabarit" min="0" value="3"></div>
+          <div class="field"><label>Vitesse</label><input type="number" id="pf-vitesse" value="3"></div>
+          <div class="field"><label>Manœuvrabilité</label><input type="number" id="pf-manoeuvrabilite" value="0"></div>
+        </div>
+        <p class="section-note">Manœuvrabilité positive = dés d'Avantage ; négative = dés de Désavantage ajoutés aux tests de pilotage.</p>
+
+        <div class="section-title"><h2>Fiche technique</h2><div class="rule"></div></div>
+        <div class="field-row">
+          <div class="field"><label>Hyperpropulseur</label><input type="text" id="pf-hyperpropulseur" placeholder="ex : Principal : classe 2, Secours : classe 12"></div>
+          <div class="field"><label>Navordinateur</label><input type="text" id="pf-navordinateur" placeholder="Oui / Non / Aucun"></div>
+          <div class="field"><label>Capacité de la soute</label><input type="text" id="pf-capacite-soute"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Équipage</label><input type="text" id="pf-equipage-txt"></div>
+          <div class="field"><label>Passagers</label><input type="text" id="pf-passagers-txt"></div>
+          <div class="field"><label>Autonomie</label><input type="text" id="pf-autonomie"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Prix</label><input type="text" id="pf-prix-txt" placeholder="ex : 4200 crédits"></div>
+          <div class="field"><label>Rareté</label><input type="text" id="pf-rarete-txt"></div>
+          <div class="field"><label>Points de personnalisation</label><input type="text" id="pf-points-customisation"></div>
+        </div>
+      </div>
+
+      <div class="section-title"><h2>Encaissement / Défense / Santé / Stress</h2><div class="rule"></div></div>
+      <div class="field-row">
+        <div class="field"><label id="pf-enc-label">Encaissement</label><input type="number" id="pf-enc"></div>
+        <div class="field"><label id="pf-defcac-label">Défense CàC</label><input type="number" id="pf-defcac"></div>
+        <div class="field"><label id="pf-defdist-label">Défense distance</label><input type="number" id="pf-defdist"></div>
+        <div class="field" id="pf-block-ecrans-extra" style="display:none;"><label>Écran droit</label><input type="number" id="pf-ecrandroit"></div>
+        <div class="field" id="pf-block-ecrans-extra2" style="display:none;"><label>Écran gauche</label><input type="number" id="pf-ecrangauche"></div>
+        <div class="field"><label>Adversité</label><input type="number" id="pf-adversite" min="0"></div>
+        <div class="field" id="pf-block-santemax"><label id="pf-santemax-label">Points de blessure max</label><input type="number" id="pf-santemax"></div>
+        <div class="field" id="pf-block-stressmax"><label id="pf-stressmax-label">Stress max</label><input type="number" id="pf-stressmax"></div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" onclick="savePersonnage()">Enregistrer</button>
+        <button class="btn" onclick="closeForm('form-personnage')">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LIEUX ============ -->
+  <div class="tab-panel" id="tab-lieux">
+    <div class="toolbar">
+      <button class="btn primary" onclick="openLieuForm()">+ Nouveau lieu</button>
+    </div>
+    <div class="admin-list" id="list-lieux"></div>
+
+    <div class="form-box" id="form-lieu">
+      <h3 id="lf-title">Nouveau lieu</h3>
+      <input type="hidden" id="lf-id">
+      <div class="field-row">
+        <div class="field"><label>Nom</label><input type="text" id="lf-nom"></div>
+        <div class="field"><label>Zone</label><select id="lf-zone"></select></div>
+      </div>
+
+      <div class="field"><label>Image</label>
+        <div class="file-drop" onclick="document.getElementById('lf-image-file').click()">Cliquer pour choisir une image</div>
+        <input type="file" id="lf-image-file" accept="image/*" style="display:none">
+        <img id="lf-image-preview" class="file-preview">
+        <input type="hidden" id="lf-image-data">
+      </div>
+
+      <div class="field"><label>Description</label><textarea id="lf-description"></textarea></div>
+
+      <div class="section-title"><h2>Caractéristiques</h2><div class="rule"></div></div>
+      <p class="section-note">Ex : Gravité, Terrain, Population, Gouvernement, Climat… libre à vous.</p>
+      <div class="dyn-list" id="lf-caracteristiques"></div>
+      <button class="btn small" type="button" onclick="addCaracteristiqueRow()">+ Ajouter une caractéristique</button>
+
+      <div class="section-title"><h2>Points d'intérêt</h2><div class="rule"></div></div>
+      <div id="lf-points-interet"></div>
+      <button class="btn small" type="button" onclick="addPointInteretRow()">+ Ajouter un point d'intérêt</button>
+
+      <div class="toolbar">
+        <button class="btn primary" onclick="saveLieu()">Enregistrer</button>
+        <button class="btn" onclick="closeForm('form-lieu')">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ UNITES ============ -->
+  <div class="tab-panel" id="tab-unites">
+    <div class="toolbar">
+      <button class="btn primary" onclick="openUniteForm()">+ Nouvelle unité</button>
+    </div>
+    <div class="admin-list" id="list-unites"></div>
+
+    <div class="form-box" id="form-unite">
+      <h3 id="uf-title">Nouvelle unité</h3>
+      <input type="hidden" id="uf-id">
+      <div class="field-row">
+        <div class="field"><label>Nom</label><input type="text" id="uf-nom"></div>
+        <div class="field"><label>Organisation</label><select id="uf-org"></select></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="uf-description"></textarea></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="saveUnite()">Enregistrer</button>
+        <button class="btn" onclick="closeForm('form-unite')">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ZONES & ORGS ============ -->
+  <div class="tab-panel" id="tab-zonesorgs">
+    <div class="section-title"><h2>Zones globales</h2><div class="rule"></div></div>
+    <div class="toolbar"><button class="btn primary" onclick="openZoneForm()">+ Nouvelle zone</button></div>
+    <div class="admin-list" id="list-zones"></div>
+    <div class="form-box" id="form-zone">
+      <h3 id="zf-title">Nouvelle zone</h3>
+      <input type="hidden" id="zf-id">
+      <div class="field"><label>Nom</label><input type="text" id="zf-nom"></div>
+      <div class="field"><label>Description</label><textarea id="zf-description"></textarea></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="saveZone()">Enregistrer</button>
+        <button class="btn" onclick="closeForm('form-zone')">Annuler</button>
+      </div>
+    </div>
+
+    <div class="section-title"><h2>Organisations</h2><div class="rule"></div></div>
+    <div class="toolbar"><button class="btn primary" onclick="openOrgForm()">+ Nouvelle organisation</button></div>
+    <div class="admin-list" id="list-orgs"></div>
+    <div class="form-box" id="form-org">
+      <h3 id="of-title">Nouvelle organisation</h3>
+      <input type="hidden" id="of-id">
+      <div class="field"><label>Nom</label><input type="text" id="of-nom"></div>
+      <div class="field"><label>Description</label><textarea id="of-description"></textarea></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="saveOrg()">Enregistrer</button>
+        <button class="btn" onclick="closeForm('form-org')">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SAUVEGARDE ============ -->
+  <div class="tab-panel" id="tab-sauvegarde">
+    <div class="panel-box">
+      <h4>À propos du stockage</h4>
+      <p>Vos données sont enregistrées automatiquement dans le stockage local de <strong>ce navigateur,
+      sur cet ordinateur</strong>. Elles ne sont pas synchronisées ailleurs et peuvent être perdues si
+      vous videz le cache du navigateur.</p>
+      <p>Exportez régulièrement un fichier de sauvegarde JSON, et utilisez « Importer » pour le recharger
+      ici ou sur un autre ordinateur.</p>
+      <p><strong>Importer un fichier JSON</strong> remplace <em>tout</em> votre dossier actuel. Pour ajouter du
+      contenu (ex : de nouveaux vaisseaux) sans rien perdre, utilisez plutôt <strong>Importer en complément</strong> :
+      seuls les éléments dont l'id n'existe pas déjà chez vous seront ajoutés.</p>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" onclick="exportData()">⬇ Exporter le fichier JSON</button>
+      <button class="btn" onclick="document.getElementById('import-file').click()">⬆ Importer un fichier JSON (remplace tout)</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none">
+      <button class="btn" onclick="document.getElementById('merge-file').click()">➕ Importer en complément (fusion)</button>
+      <input type="file" id="merge-file" accept="application/json" style="display:none">
+      <button class="btn" onclick="document.getElementById('sync-file').click()">🔄 Importer / mettre à jour une fiche</button>
+      <input type="file" id="sync-file" accept="application/json" style="display:none">
+      <button class="btn" onclick="openScanUpdateForm()">📷 Scanner un QR joueur</button>
+      <button class="btn danger" onclick="doReset()">Réinitialiser aux données de départ</button>
+    </div>
+    <p class="section-note" style="margin-top:6px;"><strong>Importer / mettre à jour</strong> ajoute les éléments
+    nouveaux comme l'import en complément, mais <em>remplace</em> ceux dont l'id existe déjà — utile pour récupérer
+    la fiche d'un joueur qu'il a modifiée de son côté (voir <a href="outils/ma-fiche.html">Ma fiche</a>).</p>
+
+    <div class="panel-box" style="margin-top:18px;">
+      <h4>Retirer un lot importé par préfixe d'id</h4>
+      <p>Utile si un import en complément contenait une erreur à corriger : supprime tous les personnages
+      dont l'id commence par le préfixe indiqué (ex : <code>veh-</code> pour les 132 vaisseaux importés),
+      puis réimportez le fichier corrigé en complément.</p>
+      <div class="field" style="max-width:260px;"><label>Préfixe d'id</label><input type="text" id="prefix-remove-input" placeholder="ex : veh-"></div>
+      <div class="toolbar"><button class="btn danger" onclick="doRemoveByPrefix()">🗑 Supprimer les personnages avec ce préfixe</button></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ MODALE : PARTAGE QR ============ -->
+<div class="form-box" id="qr-modal">
+  <h3 id="qr-modal-title">QR</h3>
+  <p class="section-note">À faire scanner par le joueur sur la page <a href="outils/ma-fiche.html" target="_blank">Ma fiche</a>.</p>
+  <div id="qr-modal-code" style="display:flex; justify-content:center; padding:12px; background:#fff;"></div>
+  <p class="section-note" id="qr-modal-warning" style="display:none; color:#c1543f;"></p>
+  <div class="toolbar">
+    <button class="btn" id="qr-modal-copy">📋 Copier le lien</button>
+    <button class="btn" onclick="closeForm('qr-modal')">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ MODALE : SCANNER UNE FICHE JOUEUR ============ -->
+<div class="form-box" id="scan-update-modal">
+  <h3>Scanner le QR du joueur</h3>
+  <p class="section-note">Pointe la caméra vers l'écran du joueur affichant son QR « Ma fiche ».</p>
+  <video id="scan-update-video" style="width:100%; max-width:420px; display:block; margin:0 auto;" muted playsinline></video>
+  <canvas id="scan-update-canvas" style="display:none;"></canvas>
+  <div class="toolbar" style="justify-content:center; margin-top:10px;">
+    <button class="btn" onclick="stopEditeurScan()">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>ARCHIVES DE L'ALLIANCE — USAGE INTERNE UNIQUEMENT</footer>
+
+<script>const ROOT = "";</script>
+<script src="assets/js/vendor/lz-string.min.js"></script>
+<script src="assets/js/vendor/qrcode.min.js"></script>
+<script src="assets/js/vendor/jsQR.js"></script>
+<script src="assets/js/skills.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/render.js"></script>
+<script src="assets/js/editeur.js"></script>
+</body>
+</html>

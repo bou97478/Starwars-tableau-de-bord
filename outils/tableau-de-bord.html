@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Cellule de Kaiya</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" class="brand">RÉSEAU MINOS // ARCHIVES</a>
+  <div class="breadcrumb"><a href="../index.html">racine</a><span class="sep">/</span><span class="here">Tableau de bord — Cellule de Kaiya</span></div>
+</div>
+
+<div class="quicknav">
+  <a href="../index.html">🏠 Racine</a>
+  <a href="../zones/amas-de-minos.html">🗺️ Amas de Minos</a>
+  <a href="../zones/rebellion-de-minos.html">🎖️ Rébellion de Minos</a>
+  <a href="../cellules/unite.html?id=adversaires">⚔️ Adversaires</a>
+  <a href="../cellules/unite.html?id=vaisseaux">🚀 Vaisseaux & véhicules</a>
+  <span class="qn-sep"></span>
+  <a href="../editeur.html">✎ Éditeur</a>
+  <a href="../outils/tableau-de-bord.html" class="active">📋 Tableau de bord</a>
+  <a href="../outils/combats.html">🗡 Combats</a>
+  <a href="../outils/equipement.html">📦 Équipement</a>
+  <a href="../outils/ma-fiche.html">🧑 Ma fiche</a>
+</div>
+
+<div class="wrap">
+
+  <div class="dossier-head">
+    <div class="stamp">Outil MJ</div>
+    <div class="eyebrow">Suivi opérationnel — usage meneur de jeu</div>
+    <h1>Tableau de bord de la cellule de Kaiya</h1>
+    <p class="lead">Moral, ressources, systèmes et actions en cours. Enregistré automatiquement dans ce navigateur.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="panel-box" style="margin:0; padding:12px 20px; display:flex; align-items:center; gap:14px;">
+      <span style="font-family:'JetBrains Mono',monospace; color:var(--ink-dim); font-size:12px;">JOUR</span>
+      <span id="jour-actuel" style="font-family:'Oswald',sans-serif; font-size:24px; color:var(--amber);"></span>
+    </div>
+    <button class="btn primary" onclick="doAdvanceDay()">⏭ Avancer d'un jour</button>
+    <button class="btn danger" onclick="doResetDash()">Réinitialiser le tableau de bord</button>
+    <a class="btn" href="equipement.html" style="text-decoration:none; display:inline-flex; align-items:center;">📦 Équipement</a>
+  </div>
+
+  <!-- ============ MORAL ============ -->
+  <div class="section-title"><h2>Moral des troupes</h2><div class="rule"></div></div>
+  <div class="moral-banner" id="moral-banner">
+    <strong id="moral-label"></strong> — <span id="moral-desc"></span>
+  </div>
+  <div class="gauge-card">
+    <div class="gh"><span class="label">Moral (0–15)</span><span class="val" id="moral-val"></span></div>
+    <div class="gauge-track"><div class="gauge-fill" id="moral-fill"></div></div>
+    <div class="gauge-controls">
+      <button class="btn small" onclick="adjustMoral(-1)">−1</button>
+      <button class="btn small" onclick="adjustMoral(1)">+1</button>
+      <button class="btn small" onclick="proposerEvenement()">🎲 Proposer un événement</button>
+    </div>
+    <div class="suggestion-box" id="suggestion-box"></div>
+  </div>
+
+  <!-- ============ RESSOURCES | ACTIONS EN COURS | SYSTÈMES (trois colonnes) ============ -->
+  <div class="three-col">
+    <div>
+      <div class="section-title"><h2>Ressources</h2><div class="rule"></div></div>
+      <div class="dash-grid" id="ressources-grid"></div>
+    </div>
+
+    <div>
+      <div class="section-title"><h2>Personnes mobilisées</h2><div class="rule"></div></div>
+      <div class="panel-box" id="mobilises-box"></div>
+
+      <div class="section-title"><h2>Actions en cours</h2><div class="rule"></div></div>
+      <div class="admin-list" id="actions-list"></div>
+      <div class="toolbar">
+        <button class="btn" onclick="openNewActionForm()">+ Nouvelle action</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title"><h2>Systèmes (véhicules, locaux)</h2><div class="rule"></div></div>
+      <div id="systemes-list"></div>
+      <div class="toolbar">
+        <button class="btn" onclick="openForm('form-systeme')">+ Ajouter un système</button>
+      </div>
+      <div class="form-box" id="form-systeme">
+        <h3>Nouveau système</h3>
+        <div class="field-row">
+          <div class="field"><label>Nom</label><input type="text" id="sf-nom" placeholder="Ex : Navette Sombre-Étoile"></div>
+          <div class="field"><label>Type</label><input type="text" id="sf-type" placeholder="Véhicule / Local / Équipement…"></div>
+          <div class="field"><label>Structure (points)</label><input type="number" id="sf-structure" value="10" min="1"></div>
+        </div>
+        <div class="toolbar">
+          <button class="btn primary" onclick="saveSysteme()">Ajouter</button>
+          <button class="btn" onclick="closeForm('form-systeme')">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-box" id="form-action">
+    <h3>Nouvelle action</h3>
+    <div class="field">
+      <label>Type d'action</label>
+      <select id="af-type" onchange="updateActionFormFields()">
+        <option value="reparation">Réparation d'une avarie</option>
+        <option value="jauge">Action visant une jauge (ressource ou moral)</option>
+        <option value="libre">Action libre / narrative</option>
+      </select>
+    </div>
+    <div class="field"><label>Personne(s) assignée(s)</label>
+      <div class="dyn-list" id="af-personnages"></div>
+      <button class="btn small" type="button" onclick="addPersonnageRow()">+ Ajouter une personne</button>
+    </div>
+
+    <div id="af-reparation-fields">
+      <div class="field-row">
+        <div class="field"><label>Système</label><select id="af-systeme" onchange="fillAvarieSelect()"></select></div>
+        <div class="field"><label>Avarie</label><select id="af-avarie" onchange="fillReparationCosts()"></select></div>
+      </div>
+    </div>
+
+    <div id="af-jauge-fields" style="display:none;">
+      <div class="field-row">
+        <div class="field"><label>Jauge ciblée</label>
+          <select id="af-cible">
+            <option value="moral">Moral des troupes</option>
+            <option value="nourriture">Nourriture</option>
+            <option value="energie">Énergie</option>
+            <option value="munitions">Munitions</option>
+            <option value="credits">Crédits</option>
+          </select>
+        </div>
+        <div class="field"><label>Montant par succès (peut être négatif)</label><input type="number" id="af-montant" value="10"></div>
+      </div>
+      <p class="section-note">Ex : chasse → cible « Nourriture », montant +10 par succès net. 3 succès nets = +30%.</p>
+    </div>
+
+    <div class="field"><label>Description</label><input type="text" id="af-description" placeholder="Ex : Discours du commandant devant la troupe"></div>
+
+    <div class="field-row">
+      <div class="field"><label>Coût en énergie (de base)</label><input type="number" id="af-cout-energie" value="0"></div>
+      <div class="field"><label>Coût en crédits (de base)</label><input type="number" id="af-cout-credits" value="0"></div>
+      <div class="field"><label>Durée de base (jours)</label><input type="number" id="af-duree" value="1" min="0"></div>
+    </div>
+
+    <div class="section-title"><h2>Résolution du jet (à remplir par le MJ)</h2><div class="rule"></div></div>
+    <div class="field-row">
+      <div class="field"><label>Succès nets (0 ou négatif = échec)</label><input type="number" id="af-succes" value="1"></div>
+      <div class="field"><label>Les avantages/menaces net réduisent/augmentent…</label>
+        <select id="af-applique-a">
+          <option value="duree">…la durée (jours)</option>
+          <option value="energie">…le coût en énergie</option>
+          <option value="aucun">…rien (juste narratif)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Avantages</label><input type="number" id="af-avantages" value="0" min="0"></div>
+      <div class="field"><label>Menaces</label><input type="number" id="af-menaces" value="0" min="0"></div>
+      <div class="field"><label>Triomphes</label><input type="number" id="af-triomphes" value="0" min="0"></div>
+      <div class="field"><label>Désastres</label><input type="number" id="af-desastres" value="0" min="0"></div>
+    </div>
+    <p class="section-note">Un Triomphe compte comme 3 avantages, un Désastre comme 3 menaces, dans le calcul de l'ajustement de durée/énergie. Pour une réparation, seul le signe des succès nets compte (réussite ou échec).</p>
+
+    <div class="toolbar">
+      <button class="btn primary" onclick="saveAction()">Valider le jet et assigner l'action</button>
+      <button class="btn" onclick="closeForm('form-action')">Annuler</button>
+    </div>
+  </div>
+
+  <!-- ============ JOURNAL ============ -->
+  <div class="section-title"><h2>Journal</h2><div class="rule"></div></div>
+  <div id="journal-list"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>ARCHIVES DE L'ALLIANCE — USAGE INTERNE UNIQUEMENT</footer>
+
+<script>const ROOT = "../";</script>
+<script src="../assets/js/skills.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/dashboard-data.js"></script>
+<script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

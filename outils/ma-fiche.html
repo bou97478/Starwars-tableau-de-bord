@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ma fiche — Réseau Minos</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" class="brand">RÉSEAU MINOS // ARCHIVES</a>
+  <div class="breadcrumb"><a href="../index.html">racine</a><span class="sep">/</span><span class="here">Ma fiche</span></div>
+</div>
+
+<div class="wrap">
+
+  <div class="dossier-head">
+    <div class="eyebrow">Espace joueur</div>
+    <h1>Ma fiche</h1>
+    <p class="lead">Ta fiche personnage, enregistrée uniquement sur cet appareil. Le meneur de jeu te l'a transmise
+    par QR code ou par fichier — scanne-la ou colle son contenu ci-dessous pour commencer.</p>
+  </div>
+
+  <!-- ============ ACCUEIL / IMPORT ============ -->
+  <div id="onboarding-box">
+    <div class="panel-box">
+      <h4>Récupérer ma fiche</h4>
+      <div class="toolbar">
+        <button class="btn primary" onclick="startScan()">📷 Scanner un QR</button>
+        <button class="btn" onclick="document.getElementById('mf-file').click()">⬆ Importer un fichier JSON</button>
+        <input type="file" id="mf-file" accept="application/json" style="display:none">
+      </div>
+      <p class="section-note">Si la caméra ne fonctionne pas (ça dépend du navigateur et de comment le site est
+      ouvert), colle directement le code reçu du MJ ci-dessous :</p>
+      <div class="field"><textarea id="mf-paste" rows="4" placeholder="Colle ici le code fourni par le MJ…"></textarea></div>
+      <div class="toolbar"><button class="btn" onclick="loadFromPaste()">Charger ce code</button></div>
+    </div>
+
+    <div class="panel-box" id="scan-box" style="display:none;">
+      <h4>Scan en cours…</h4>
+      <video id="qr-video" style="width:100%; max-width:420px; display:block; margin:0 auto;" muted playsinline></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
+      <div class="toolbar" style="justify-content:center; margin-top:10px;">
+        <button class="btn" onclick="stopScan()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FICHE CHARGÉE ============ -->
+  <div id="fiche-box" style="display:none;">
+
+    <div class="toolbar" style="justify-content:space-between; flex-wrap:wrap;">
+      <div class="toolbar" style="margin:0;">
+        <button class="btn small view-tab active" onclick="switchView('edit')" id="tab-edit">✎ Modifier</button>
+        <button class="btn small view-tab" onclick="switchView('voir')" id="tab-voir">📄 Voir la fiche</button>
+      </div>
+      <div class="toolbar" style="margin:0;">
+        <button class="btn small primary" onclick="saveFiche()">💾 Enregistrer</button>
+        <button class="btn small" onclick="showMyQr()">📱 Régénérer mon QR</button>
+        <button class="btn small" onclick="downloadFiche()">⬇ Télécharger (JSON)</button>
+        <button class="btn small danger" onclick="resetFiche()">Recommencer</button>
+      </div>
+    </div>
+
+    <div id="edit-view"></div>
+    <div id="voir-view" style="display:none;"></div>
+
+  </div>
+
+  <!-- ============ MODALE : MON QR ============ -->
+  <div class="form-box" id="qr-modal">
+    <h3>Mon QR</h3>
+    <p class="section-note">Fais-le scanner par le MJ pour lui transmettre tes changements.</p>
+    <div id="qr-modal-code" style="display:flex; justify-content:center; padding:12px; background:#fff;"></div>
+    <p class="section-note" id="qr-modal-warning" style="display:none; color:#c1543f;"></p>
+    <div class="toolbar">
+      <button class="btn" id="qr-modal-copy">📋 Copier le code</button>
+      <button class="btn" onclick="closeForm('qr-modal')">Fermer</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>ARCHIVES DE L'ALLIANCE — USAGE INTERNE UNIQUEMENT</footer>
+
+<script>const ROOT = "../";</script>
+<script src="../assets/js/vendor/lz-string.min.js"></script>
+<script src="../assets/js/vendor/qrcode.min.js"></script>
+<script src="../assets/js/vendor/jsQR.js"></script>
+<script src="../assets/js/skills.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/render.js"></script>
+<script src="../assets/js/ma-fiche.js"></script>
+</body>
+</html>
