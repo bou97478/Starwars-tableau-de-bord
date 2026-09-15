@@ -326,20 +326,14 @@ function downloadFiche() {
 
 function showMyQr() {
   FICHE = collectFicheFromForm();
-  const payload = LZString.compressToEncodedURIComponent(JSON.stringify(FICHE));
   const box = document.getElementById("qr-modal-code");
-  box.innerHTML = "";
-  new QRCode(box, { text: payload, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.L });
-  document.getElementById("qr-modal-copy").onclick = () => {
-    navigator.clipboard.writeText(payload).then(() => toast("Code copié"), () => toast("Impossible de copier automatiquement"));
-  };
   const warn = document.getElementById("qr-modal-warning");
-  if (payload.length > 1800) {
-    warn.style.display = "";
-    warn.textContent = `⚠ Fiche volumineuse (${payload.length} caractères encodés) : si le QR ne scanne pas, utilise plutôt « Télécharger (JSON) » ou le bouton Copier ci-dessous.`;
-  } else {
-    warn.style.display = "none";
-  }
+  const result = buildQrText(FICHE);
+  renderQrOrWarn(box, warn, result);
+  document.getElementById("qr-modal-copy").onclick = () => {
+    const text = result ? result.text : "";
+    navigator.clipboard.writeText(text).then(() => toast("Code copié"), () => toast("Impossible de copier automatiquement"));
+  };
   openForm("qr-modal");
 }
 

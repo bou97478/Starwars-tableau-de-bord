@@ -393,22 +393,16 @@ function exportOnePersonnage(id) {
 function showPersonnageQr(id) {
   const p = DATA.personnages.find(x => x.id === id);
   if (!p) return;
-  const payload = LZString.compressToEncodedURIComponent(JSON.stringify(p));
-  const url = location.origin + location.pathname.replace(/editeur\.html$/, "") + "outils/ma-fiche.html#import=" + encodeURIComponent(payload);
+  const urlPrefix = location.origin + location.pathname.replace(/editeur\.html$/, "") + "outils/ma-fiche.html#import=";
   document.getElementById("qr-modal-title").textContent = "QR — " + p.nom;
   const box = document.getElementById("qr-modal-code");
-  box.innerHTML = "";
-  new QRCode(box, { text: url, width: 260, height: 260, correctLevel: QRCode.CorrectLevel.L });
-  document.getElementById("qr-modal-copy").onclick = () => copyToClipboard(url, "Lien copié");
   const warn = document.getElementById("qr-modal-warning");
-  if (location.protocol === "file:") {
+  const result = buildQrText(p, urlPrefix);
+  const rendered = renderQrOrWarn(box, warn, result);
+  document.getElementById("qr-modal-copy").onclick = () => copyToClipboard(result ? result.text : "", "Lien copié");
+  if (rendered && location.protocol === "file:") {
     warn.style.display = "";
     warn.textContent = "⚠ Site ouvert en local (file://) : ce lien ne s'ouvrira automatiquement que si le joueur a une copie du site à l'identique. Sinon, fais-lui plutôt scanner ce QR depuis la page « Ma fiche » elle-même (bouton Scanner), ou envoie-lui le lien copié tel quel.";
-  } else if (url.length > 1900) {
-    warn.style.display = "";
-    warn.textContent = `⚠ Fiche volumineuse (${url.length} caractères) : le QR peut être difficile à scanner. Privilégie l'export JSON pour ce personnage si besoin.`;
-  } else {
-    warn.style.display = "none";
   }
   openForm("qr-modal");
 }
