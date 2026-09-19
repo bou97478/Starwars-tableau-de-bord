@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lieu — Amas de Minos</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" class="brand">RÉSEAU MINOS // ARCHIVES</a>
+  <div class="breadcrumb" id="breadcrumb"></div>
+</div>
+
+<div class="quicknav">
+  <a href="../index.html">🏠 Racine</a>
+  <a href="../zones/amas-de-minos.html">🗺️ Amas de Minos</a>
+  <a href="../zones/rebellion-de-minos.html">🎖️ Rébellion de Minos</a>
+  <a href="../cellules/unite.html?id=adversaires">⚔️ Adversaires</a>
+  <a href="../cellules/unite.html?id=vaisseaux">🚀 Vaisseaux & véhicules</a>
+  <span class="qn-sep"></span>
+  <a href="../editeur.html">✎ Éditeur</a>
+  <a href="../outils/tableau-de-bord.html">📋 Tableau de bord</a>
+  <a href="../outils/combats.html">🗡 Combats</a>
+  <a href="../outils/equipement.html">📦 Équipement</a>
+  <a href="../outils/ma-fiche.html">🧑 Ma fiche</a>
+</div>
+
+<div class="wrap">
+  <div class="dossier-head" id="dossier-head"></div>
+
+  <div id="lieu-detail"></div>
+
+  <div class="section-title"><h2>Personnages présents</h2><div class="rule"></div></div>
+  <div class="char-grid" id="char-grid"></div>
+</div>
+
+<footer>ARCHIVES DE L'ALLIANCE — USAGE INTERNE UNIQUEMENT</footer>
+
+<script>const ROOT = "../";</script>
+<script src="../assets/js/skills.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/render.js"></script>
+<script>
+(async () => {
+  const data = await loadData();
+  const id = qParam("id");
+  const lieu = data.lieux.find(l => l.id === id);
+
+  if (!lieu) {
+    document.getElementById("dossier-head").innerHTML = `<h1>Lieu introuvable</h1><p class="lead">Aucun lieu ne correspond à cet identifiant.</p>`;
+  } else {
+    setBreadcrumb(document.getElementById("breadcrumb"), [
+      { label: "Amas de Minos", href: "amas-de-minos.html" },
+      { label: lieu.nom }
+    ]);
+    document.getElementById("dossier-head").innerHTML = `
+      <div class="eyebrow">Fiche de lieu — Amas de Minos</div>
+      <h1>${escapeHtml(lieu.nom)}</h1>
+      <p class="lead">${escapeHtml(lieu.description) || "Aucune information confirmée pour ce système."}</p>
+    `;
+    renderLieuDetail(document.getElementById("lieu-detail"), lieu);
+    const personnages = data.personnages.filter(p => p.lieuId === lieu.id);
+    renderCharGrid(document.getElementById("char-grid"), personnages);
+  }
+})();
+</script>
+</body>
+</html>
